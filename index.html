@@ -16,14 +16,23 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell;
             background: #fafafa;
             margin: 0;
-            padding: 20px;
             min-height: 100vh;
             color: var(--mac-text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .container {
-            max-width: 800px;
-            margin: 0 auto;
+            width: 90%;
+            max-width: 1000px;
+            margin: 40px 0;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .mac-window {
@@ -33,6 +42,12 @@
             border: 1px solid var(--mac-border);
             margin: 20px 0;
             overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .mac-window:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .window-titlebar {
@@ -60,6 +75,12 @@
             cursor: help;
             font-size: 0.9em;
             background: transparent;
+            transition: all 0.2s ease;
+        }
+
+        .info-button:hover {
+            background: var(--mac-blue);
+            color: white;
         }
 
         .window-content {
@@ -70,11 +91,11 @@
             background: var(--mac-blue);
             color: white;
             border: none;
-            padding: 10px 24px;
+            padding: 12px 28px;
             border-radius: 8px;
             font-size: 14px;
             cursor: pointer;
-            transition: opacity 0.2s;
+            transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -82,6 +103,7 @@
 
         .button:hover {
             opacity: 0.9;
+            transform: translateY(-1px);
         }
 
         video {
@@ -89,6 +111,12 @@
             background: #000;
             width: 100%;
             margin: 15px 0;
+            opacity: 0;
+            animation: videoFadeIn 0.5s ease forwards;
+        }
+
+        @keyframes videoFadeIn {
+            to { opacity: 1; }
         }
 
         #qrCode {
@@ -97,6 +125,12 @@
             border-radius: 8px;
             display: inline-block;
             margin: 20px 0;
+            animation: scaleUp 0.3s ease;
+        }
+
+        @keyframes scaleUp {
+            from { transform: scale(0.95); }
+            to { transform: scale(1); }
         }
 
         .connection-url {
@@ -107,6 +141,7 @@
             word-break: break-all;
             margin: 15px 0;
             font-size: 0.9em;
+            animation: fadeIn 0.4s ease;
         }
 
         input[type="text"] {
@@ -115,12 +150,20 @@
             border-radius: 8px;
             width: 200px;
             margin-right: 10px;
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--mac-blue);
+            box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
         }
 
         .grid {
             display: grid;
-            gap: 20px;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            justify-content: center;
         }
 
         .modal {
@@ -130,9 +173,17 @@
             right: 0;
             bottom: 0;
             background: rgba(0,0,0,0.3);
-            display: none;
+            display: flex;
             justify-content: center;
             align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
         }
 
         .modal-content {
@@ -141,6 +192,12 @@
             border-radius: 12px;
             max-width: 400px;
             position: relative;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
         }
 
         .close-modal {
@@ -149,12 +206,17 @@
             right: 15px;
             cursor: pointer;
             font-size: 1.2em;
+            transition: opacity 0.2s ease;
+        }
+
+        .close-modal:hover {
+            opacity: 0.7;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 style="font-weight: 600; margin-bottom: 20px; text-align: center;">PhoneCam</h1>
+        <h1 style="font-weight: 600; margin-bottom: 30px; text-align: center; animation: fadeIn 0.6s ease;">PhoneCam</h1>
         
         <div class="grid">
             <!-- Receiver Section -->
@@ -164,7 +226,7 @@
                     <button class="info-button" onclick="showInfo('receiver-info')">i</button>
                 </div>
                 <div class="window-content">
-                    <div id="receiver" style="display: none;">
+                    <div id="receiver" style="display: none; opacity: 0; transition: opacity 0.3s ease;">
                         <video id="phoneVideo" autoplay playsinline></video>
                         <div style="margin-top: 15px;">
                             <input type="text" id="peerIdInput" placeholder="Enter Phone's Connection ID">
@@ -182,7 +244,7 @@
                     <button class="info-button" onclick="showInfo('sender-info')">i</button>
                 </div>
                 <div class="window-content">
-                    <div id="sender" style="display: none;">
+                    <div id="sender" style="display: none; opacity: 0; transition: opacity 0.3s ease;">
                         <div id="qrCode"></div>
                         <p class="connection-url" id="connectionUrl"></p>
                         <video id="localVideo" autoplay playsinline muted></video>
@@ -228,35 +290,55 @@
     <script>
         // Modal functions
         function showInfo(id) {
-            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-            document.getElementById(id).style.display = 'flex';
+            document.querySelectorAll('.modal').forEach(m => {
+                m.classList.remove('active');
+            });
+            const modal = document.getElementById(id);
+            modal.classList.add('active');
         }
 
         function closeModal() {
-            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+            document.querySelectorAll('.modal').forEach(m => {
+                m.classList.remove('active');
+            });
         }
 
-        // Close modal when clicking outside
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
                 closeModal();
             }
         }
 
-        // PeerJS functionality (same as previous version)
+        // PeerJS functionality with animations
         let peer = null;
         let localStream = null;
         let currentPeerId = null;
 
         document.getElementById('startReceiver').addEventListener('click', () => {
-            document.getElementById('startReceiver').style.display = 'none';
-            document.getElementById('receiver').style.display = 'block';
+            const button = document.getElementById('startReceiver');
+            button.style.opacity = '0';
+            button.style.pointerEvents = 'none';
+            
+            const receiver = document.getElementById('receiver');
+            receiver.style.display = 'block';
+            setTimeout(() => {
+                receiver.style.opacity = '1';
+            }, 10);
+            
             initializeReceiver();
         });
 
         document.getElementById('startSender').addEventListener('click', async () => {
-            document.getElementById('startSender').style.display = 'none';
-            document.getElementById('sender').style.display = 'block';
+            const button = document.getElementById('startSender');
+            button.style.opacity = '0';
+            button.style.pointerEvents = 'none';
+            
+            const sender = document.getElementById('sender');
+            sender.style.display = 'block';
+            setTimeout(() => {
+                sender.style.opacity = '1';
+            }, 10);
+            
             await initializeSender();
         });
 
@@ -282,9 +364,18 @@
                     audio: false
                 });
 
-                document.getElementById('localVideo').srcObject = localStream;
+                const videoElement = document.getElementById('localVideo');
+                videoElement.srcObject = localStream;
+                videoElement.onloadedmetadata = () => {
+                    videoElement.animate([
+                        { opacity: 0 },
+                        { opacity: 1 }
+                    ], { duration: 300, easing: 'ease-out' });
+                };
+
                 const connectionUrl = `${window.location.href}?peerId=${currentPeerId}`;
                 document.getElementById('connectionUrl').textContent = connectionUrl;
+                
                 new QRCode(document.getElementById('qrCode'), {
                     text: connectionUrl,
                     width: 200,
@@ -315,6 +406,10 @@
                 const call = peer.call(peerId, localStream);
                 call.on('stream', (remoteStream) => {
                     video.srcObject = remoteStream;
+                    video.animate([
+                        { opacity: 0 },
+                        { opacity: 1 }
+                    ], { duration: 300, easing: 'ease-out' });
                 });
             });
 
