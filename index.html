@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhoneCam — Remote Camera</title>
+    <title>PhoneCam Virtual Webcam</title>
     <style>
         :root {
             --mac-blue: #007AFF;
@@ -45,11 +45,6 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .mac-window:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
         .window-titlebar {
             padding: 18px 20px;
             border-bottom: 1px solid var(--mac-border);
@@ -78,15 +73,6 @@
             transition: all 0.2s ease;
         }
 
-        .info-button:hover {
-            background: var(--mac-blue);
-            color: white;
-        }
-
-        .window-content {
-            padding: 20px;
-        }
-
         .button {
             background: var(--mac-blue);
             color: white;
@@ -96,14 +82,6 @@
             font-size: 14px;
             cursor: pointer;
             transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .button:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
         }
 
         video {
@@ -111,59 +89,6 @@
             background: #000;
             width: 100%;
             margin: 15px 0;
-            opacity: 0;
-            animation: videoFadeIn 0.5s ease forwards;
-        }
-
-        @keyframes videoFadeIn {
-            to { opacity: 1; }
-        }
-
-        #qrCode {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            display: inline-block;
-            margin: 20px 0;
-            animation: scaleUp 0.3s ease;
-        }
-
-        @keyframes scaleUp {
-            from { transform: scale(0.95); }
-            to { transform: scale(1); }
-        }
-
-        .connection-url {
-            background: var(--mac-gray);
-            padding: 12px;
-            border-radius: 8px;
-            font-family: monospace;
-            word-break: break-all;
-            margin: 15px 0;
-            font-size: 0.9em;
-            animation: fadeIn 0.4s ease;
-        }
-
-        input[type="text"] {
-            padding: 10px;
-            border: 1px solid var(--mac-border);
-            border-radius: 8px;
-            width: 200px;
-            margin-right: 10px;
-            transition: all 0.2s ease;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: var(--mac-blue);
-            box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
-        }
-
-        .grid {
-            display: grid;
-            gap: 30px;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            justify-content: center;
         }
 
         .modal {
@@ -192,95 +117,76 @@
             border-radius: 12px;
             max-width: 400px;
             position: relative;
-            transform: translateY(20px);
-            transition: all 0.3s ease;
-        }
-
-        .modal.active .modal-content {
-            transform: translateY(0);
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            cursor: pointer;
-            font-size: 1.2em;
-            transition: opacity 0.2s ease;
-        }
-
-        .close-modal:hover {
-            opacity: 0.7;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 style="font-weight: 600; margin-bottom: 30px; text-align: center; animation: fadeIn 0.6s ease;">PhoneCam</h1>
+        <h1 style="text-align: center; margin-bottom: 30px;">PhoneCam Virtual Webcam</h1>
         
-        <div class="grid">
+        <div style="display: grid; gap: 30px; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
             <!-- Receiver Section -->
             <div class="mac-window">
                 <div class="window-titlebar">
-                    <span class="window-title">Laptop Viewer</span>
-                    <button class="info-button" onclick="showInfo('receiver-info')">i</button>
+                    <span class="window-title">Computer Setup</span>
+                    <button class="info-button" onclick="showInfo('setup-info')">i</button>
                 </div>
                 <div class="window-content">
-                    <div id="receiver" style="display: none; opacity: 0; transition: opacity 0.3s ease;">
+                    <div id="receiver" style="display: none;">
                         <video id="phoneVideo" autoplay playsinline></video>
                         <div style="margin-top: 15px;">
-                            <input type="text" id="peerIdInput" placeholder="Enter Phone's Connection ID">
+                            <input type="text" id="peerIdInput" placeholder="Enter Phone's Connection ID" 
+                                   style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-right: 10px;">
                             <button class="button" id="connectButton">Connect</button>
                         </div>
                     </div>
-                    <button class="button" id="startReceiver">Start as Receiver</button>
+                    <button class="button" id="startReceiver">Start Virtual Webcam</button>
                 </div>
             </div>
 
             <!-- Sender Section -->
             <div class="mac-window">
                 <div class="window-titlebar">
-                    <span class="window-title">Phone Camera</span>
-                    <button class="info-button" onclick="showInfo('sender-info')">i</button>
+                    <span class="window-title">Phone Setup</span>
+                    <button class="info-button" onclick="showInfo('phone-info')">i</button>
                 </div>
                 <div class="window-content">
-                    <div id="sender" style="display: none; opacity: 0; transition: opacity 0.3s ease;">
+                    <div id="sender" style="display: none;">
                         <div id="qrCode"></div>
-                        <p class="connection-url" id="connectionUrl"></p>
+                        <p id="connectionUrl" style="word-break: break-all; font-family: monospace;"></p>
                         <video id="localVideo" autoplay playsinline muted></video>
                     </div>
-                    <button class="button" id="startSender">Start as Sender</button>
+                    <button class="button" id="startSender">Start Phone Camera</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Info Modals -->
-    <div class="modal" id="receiver-info">
+    <!-- Modals -->
+    <div class="modal" id="setup-info">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeModal()">×</span>
-            <h3>Laptop Viewer</h3>
-            <p>Use this mode on your laptop to view the phone's camera feed:</p>
+            <h3>Virtual Webcam Setup</h3>
+            <p>To use in Zoom/Teams:</p>
             <ol>
-                <li>Click "Start as Receiver"</li>
-                <li>Enter the connection ID from your phone</li>
-                <li>Click "Connect"</li>
+                <li>Install OBS Studio</li>
+                <li>Add Browser Source with this page's URL</li>
+                <li>Start OBS Virtual Camera</li>
+                <li>Select "OBS-Camera" in your meeting app</li>
             </ol>
-            <p>The phone must already be in sender mode.</p>
+            <button onclick="closeModal()" style="margin-top: 15px;">Close</button>
         </div>
     </div>
 
-    <div class="modal" id="sender-info">
+    <div class="modal" id="phone-info">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeModal()">×</span>
-            <h3>Phone Camera</h3>
-            <p>Use this mode on your phone to share its camera:</p>
+            <h3>Phone Setup</h3>
             <ol>
-                <li>Click "Start as Sender"</li>
+                <li>Click "Start Phone Camera"</li>
                 <li>Allow camera access</li>
-                <li>Scan the QR code or share the connection URL with your laptop</li>
+                <li>Share the QR code/URL with your computer</li>
+                <li>Keep this page open</li>
             </ol>
-            <p>Keep this page open during use.</p>
+            <button onclick="closeModal()" style="margin-top: 15px;">Close</button>
         </div>
     </div>
 
@@ -288,133 +194,62 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
     <script>
-        // Modal functions
+        let peer = null;
+        let localStream = null;
+
+        // Modal controls
         function showInfo(id) {
-            document.querySelectorAll('.modal').forEach(m => {
-                m.classList.remove('active');
-            });
-            const modal = document.getElementById(id);
-            modal.classList.add('active');
+            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
         }
 
         function closeModal() {
-            document.querySelectorAll('.modal').forEach(m => {
-                m.classList.remove('active');
-            });
+            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
         }
 
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                closeModal();
-            }
-        }
-
-        // PeerJS functionality with animations
-        let peer = null;
-        let localStream = null;
-        let currentPeerId = null;
-
+        // Receiver setup
         document.getElementById('startReceiver').addEventListener('click', () => {
-            const button = document.getElementById('startReceiver');
-            button.style.opacity = '0';
-            button.style.pointerEvents = 'none';
-            
-            const receiver = document.getElementById('receiver');
-            receiver.style.display = 'block';
-            setTimeout(() => {
-                receiver.style.opacity = '1';
-            }, 10);
-            
-            initializeReceiver();
+            document.getElementById('startReceiver').style.display = 'none';
+            document.getElementById('receiver').style.display = 'block';
         });
 
+        // Sender setup
         document.getElementById('startSender').addEventListener('click', async () => {
-            const button = document.getElementById('startSender');
-            button.style.opacity = '0';
-            button.style.pointerEvents = 'none';
-            
-            const sender = document.getElementById('sender');
-            sender.style.display = 'block';
-            setTimeout(() => {
-                sender.style.opacity = '1';
-            }, 10);
-            
-            await initializeSender();
+            try {
+                document.getElementById('startSender').style.display = 'none';
+                document.getElementById('sender').style.display = 'block';
+                
+                const peerId = `phonecam-${Math.random().toString(36).substr(2, 8)}`;
+                peer = new Peer(peerId, { host: '0.peerjs.com', port: 443, secure: true });
+                
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                document.getElementById('localVideo').srcObject = localStream;
+
+                // Generate connection URL
+                const url = `${window.location.href}?peer=${peerId}`;
+                document.getElementById('connectionUrl').textContent = url;
+                new QRCode(document.getElementById('qrCode'), { text: url, width: 200, height: 200 });
+
+                peer.on('call', call => call.answer(localStream));
+            } catch (error) {
+                console.error('Error:', error);
+            }
         });
 
-        async function initializeReceiver() {
-            document.getElementById('connectButton').addEventListener('click', () => {
-                const peerId = document.getElementById('peerIdInput').value;
-                connectToPeer(peerId);
-            });
-        }
-
-        async function initializeSender() {
-            try {
-                currentPeerId = `phone-${Math.random().toString(36).substr(2, 9)}`;
-                peer = new Peer(currentPeerId, {
-                    host: '0.peerjs.com',
-                    port: 443,
-                    secure: true,
-                    debug: 3
-                });
-
-                localStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'environment' },
-                    audio: false
-                });
-
-                const videoElement = document.getElementById('localVideo');
-                videoElement.srcObject = localStream;
-                videoElement.onloadedmetadata = () => {
-                    videoElement.animate([
-                        { opacity: 0 },
-                        { opacity: 1 }
-                    ], { duration: 300, easing: 'ease-out' });
-                };
-
-                const connectionUrl = `${window.location.href}?peerId=${currentPeerId}`;
-                document.getElementById('connectionUrl').textContent = connectionUrl;
-                
-                new QRCode(document.getElementById('qrCode'), {
-                    text: connectionUrl,
-                    width: 200,
-                    height: 200
-                });
-
-                peer.on('connection', (conn) => {
-                    conn.on('open', () => conn.send('Sender connected'));
-                });
-
-                peer.on('call', (call) => call.answer(localStream));
-
-            } catch (error) {
-                console.error('Error accessing camera:', error);
-            }
-        }
-
-        function connectToPeer(peerId) {
-            const video = document.getElementById('phoneVideo');
-            peer = new Peer({
-                host: '0.peerjs.com',
-                port: 443,
-                secure: true,
-                debug: 3
-            });
-
-            peer.on('open', () => {
-                const call = peer.call(peerId, localStream);
-                call.on('stream', (remoteStream) => {
-                    video.srcObject = remoteStream;
-                    video.animate([
-                        { opacity: 0 },
-                        { opacity: 1 }
-                    ], { duration: 300, easing: 'ease-out' });
+        // Connection handler
+        document.getElementById('connectButton').addEventListener('click', () => {
+            const peerId = document.getElementById('peerIdInput').value;
+            const receiverPeer = new Peer({ host: '0.peerjs.com', port: 443, secure: true });
+            
+            receiverPeer.on('open', () => {
+                const call = receiverPeer.call(peerId, localStream);
+                call.on('stream', stream => {
+                    const video = document.getElementById('phoneVideo');
+                    video.srcObject = stream;
+                    alert('Now set up OBS Virtual Camera as instructed!');
                 });
             });
-
-            peer.on('error', console.error);
-        }
+        });
     </script>
 </body>
 </html>
