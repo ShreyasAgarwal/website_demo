@@ -694,20 +694,24 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
     <script>
-        // Modal functions
-        function showInfo(modalId) {
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.classList.remove('active');
-            });
-            document.getElementById(modalId).classList.add('active');
-        }
+      // Modal functions
+function showInfo(modalId) {
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.classList.remove('active');
+    });
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('active');
+    } else {
+        console.error(`Modal with ID "${modalId}" not found`);
+    }
+}
 
-        function closeModal() {
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.classList.remove('active');
-            });
-        }
-
+function closeModal() {
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.classList.remove('active');
+    });
+}
         // Toast notification
         function showToast(message) {
             // Remove any existing toasts
@@ -731,11 +735,11 @@
         }
 
         // Close modal when clicking outside
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                closeModal();
-            }
-        }
+window.addEventListener('click', function(event) {
+    if (event.target.classList.contains('modal')) {
+        closeModal();
+    }
+});
 
         // PeerJS functionality
         let peer = null;
