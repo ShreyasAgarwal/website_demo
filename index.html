@@ -597,7 +597,7 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Computer Viewer</h3>
-                    <button class="info-button" onclick="showInfo('computer-info')">i</button>
+                    <button class="info-button" data-modal="computer-info">i</button>
                 </div>
                 <div class="card-content">
                     <div id="receiver" style="display: none;">
@@ -630,7 +630,7 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Phone Camera</h3>
-                    <button class="info-button" onclick="showInfo('phone-info')">i</button>
+                    <button class="info-button" data-modal="phone-info">i</button>
                 </div>
                 <div class="card-content">
                     <div id="sender" style="display: none;">
@@ -664,7 +664,7 @@
     <!-- Modals -->
     <div class="modal" id="computer-info">
         <div class="modal-content">
-            <button class="close-modal" onclick="closeModal()">×</button>
+            <button class="close-modal">×</button>
             <h2>Computer Setup Guide</h2>
             <ol class="step-list">
                 <li>Click "Start Virtual Camera" to initialize the receiver</li>
@@ -678,7 +678,7 @@
 
     <div class="modal" id="phone-info">
         <div class="modal-content">
-            <button class="close-modal" onclick="closeModal()">×</button>
+            <button class="close-modal">×</button>
             <h2>Phone Setup Guide</h2>
             <ol class="step-list">
                 <li>Click "Activate Phone Camera" and allow camera access</li>
