@@ -3,191 +3,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhoneCam Virtual Webcam</title>
+    <title>PhoneCam Pro - Virtual Webcam</title>
     <style>
         :root {
-            --mac-blue: #007AFF;
-            --mac-gray: #F5F5F7;
-            --mac-border: #D6D6D6;
-            --mac-text: #1D1D1F;
+            --primary: #007AFF;
+            --background: #ffffff;
+            --surface: #F5F5F7;
+            --border: rgba(0,0,0,0.1);
+            --text-primary: #1D1D1F;
+            --text-secondary: #86868B;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes subtleScale {
+            0% { transform: scale(0.98); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell;
-            background: #fafafa;
+            background: var(--background);
             margin: 0;
             min-height: 100vh;
-            color: var(--mac-text);
+            color: var(--text-primary);
             display: flex;
             flex-direction: column;
             align-items: center;
+            -webkit-font-smoothing: antialiased;
         }
 
         .container {
             width: 90%;
-            max-width: 1000px;
-            margin: 40px 0;
-            animation: fadeIn 0.5s ease;
+            max-width: 1200px;
+            margin: 2rem 0;
+            animation: fadeIn 0.6s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeIn 0.6s 0.1s both;
         }
 
-        .mac-window {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--mac-border);
-            margin: 20px 0;
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 1rem;
+            background: linear-gradient(45deg, #007AFF, #00C7FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .grid {
+            display: grid;
+            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        }
+
+        .card {
+            background: var(--background);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
             overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transform: translateY(0);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .window-titlebar {
-            padding: 18px 20px;
-            border-bottom: 1px solid var(--mac-border);
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 48px rgba(0,0,0,0.08);
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: var(--surface);
         }
 
-        .window-title {
+        .card-title {
+            font-size: 1.25rem;
             font-weight: 600;
-            font-size: 1.1em;
+            margin: 0;
+        }
+
+        .card-content {
+            padding: 2rem;
+            position: relative;
         }
 
         .info-button {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 1px solid var(--mac-blue);
-            color: var(--mac-blue);
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: rgba(0,122,255,0.1);
+            color: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: help;
-            font-size: 0.9em;
-            background: transparent;
-            transition: all 0.2s ease;
-        }
-
-        .button {
-            background: var(--mac-blue);
-            color: white;
-            border: none;
-            padding: 12px 28px;
-            border-radius: 8px;
-            font-size: 14px;
             cursor: pointer;
             transition: all 0.2s ease;
         }
 
+        .info-button:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.875rem 1.75rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 16px rgba(0,122,255,0.15);
+        }
+
+        .button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(0,122,255,0.2);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
         video {
-            border-radius: 8px;
+            border-radius: 16px;
             background: #000;
             width: 100%;
-            margin: 15px 0;
+            margin: 1.5rem 0;
+            transform: scale(0.98);
+            opacity: 0;
+            animation: subtleScale 0.4s 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
-        .modal {
+        .connection-url {
+            background: var(--surface);
+            padding: 1rem;
+            border-radius: 12px;
+            font-family: 'SF Mono', Menlo, monospace;
+            word-break: break-all;
+            margin: 1.5rem 0;
+            font-size: 0.875rem;
+            opacity: 0;
+            animation: fadeIn 0.4s 0.3s forwards;
+        }
+
+        .qr-container {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+            display: inline-block;
+            opacity: 0;
+            animation: subtleScale 0.4s 0.4s forwards;
+        }
+
+        .input-group {
+            position: relative;
+            margin: 1.5rem 0;
+            opacity: 0;
+            animation: fadeIn 0.4s 0.2s forwards;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.15);
+        }
+
+        .status-bar {
             position: fixed;
-            top: 0;
+            bottom: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.3);
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(20px);
+            padding: 0.75rem 2rem;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            max-width: 400px;
-            position: relative;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 style="text-align: center; margin-bottom: 30px;">PhoneCam Virtual Webcam</h1>
-        
-        <div style="display: grid; gap: 30px; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
-            <!-- Receiver Section -->
-            <div class="mac-window">
-                <div class="window-titlebar">
-                    <span class="window-title">Computer Setup</span>
-                    <button class="info-button" onclick="showInfo('setup-info')">i</button>
+        <div class="hero">
+            <h1>PhoneCam Pro</h1>
+            <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">
+                Transform your phone into a professional-grade webcam
+            </p>
+        </div>
+
+        <div class="grid">
+            <!-- Computer Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Computer Viewer</h3>
+                    <button class="info-button" onclick="showInfo('computer-info')">i</button>
                 </div>
-                <div class="window-content">
+                <div class="card-content">
                     <div id="receiver" style="display: none;">
                         <video id="phoneVideo" autoplay playsinline></video>
-                        <div style="margin-top: 15px;">
-                            <input type="text" id="peerIdInput" placeholder="Enter Phone's Connection ID" 
-                                   style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-right: 10px;">
-                            <button class="button" id="connectButton">Connect</button>
+                        <div class="input-group">
+                            <input type="text" id="peerIdInput" placeholder="Enter connection ID">
+                            <button class="button" id="connectButton" style="margin-top: 1rem; width: 100%;">
+                                <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                                Connect
+                            </button>
                         </div>
                     </div>
-                    <button class="button" id="startReceiver">Start Virtual Webcam</button>
+                    <button class="button" id="startReceiver" style="width: 100%;">
+                        <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        Start Virtual Camera
+                    </button>
                 </div>
             </div>
 
-            <!-- Sender Section -->
-            <div class="mac-window">
-                <div class="window-titlebar">
-                    <span class="window-title">Phone Setup</span>
+            <!-- Phone Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Phone Camera</h3>
                     <button class="info-button" onclick="showInfo('phone-info')">i</button>
                 </div>
-                <div class="window-content">
+                <div class="card-content">
                     <div id="sender" style="display: none;">
-                        <div id="qrCode"></div>
-                        <p id="connectionUrl" style="word-break: break-all; font-family: monospace;"></p>
+                        <div class="qr-container" id="qrCode"></div>
+                        <div class="connection-url" id="connectionUrl"></div>
                         <video id="localVideo" autoplay playsinline muted></video>
                     </div>
-                    <button class="button" id="startSender">Start Phone Camera</button>
+                    <button class="button" id="startSender" style="width: 100%;">
+                        <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        Activate Phone Camera
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modals -->
-    <div class="modal" id="setup-info">
-        <div class="modal-content">
-            <h3>Virtual Webcam Setup</h3>
-            <p>To use in Zoom/Teams:</p>
-            <ol>
-                <li>Install OBS Studio</li>
-                <li>Add Browser Source with this page's URL</li>
-                <li>Start OBS Virtual Camera</li>
-                <li>Select "OBS-Camera" in your meeting app</li>
-            </ol>
-            <button onclick="closeModal()" style="margin-top: 15px;">Close</button>
-        </div>
-    </div>
-
-    <div class="modal" id="phone-info">
-        <div class="modal-content">
-            <h3>Phone Setup</h3>
-            <ol>
-                <li>Click "Start Phone Camera"</li>
-                <li>Allow camera access</li>
-                <li>Share the QR code/URL with your computer</li>
-                <li>Keep this page open</li>
-            </ol>
-            <button onclick="closeModal()" style="margin-top: 15px;">Close</button>
-        </div>
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <span>Status: <span id="statusText">Ready</span></span>
+        <span>v2.0.0</span>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1.3.1/dist/peerjs.min.js"></script>
@@ -197,57 +288,79 @@
         let peer = null;
         let localStream = null;
 
-        // Modal controls
-        function showInfo(id) {
-            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+        // Status updates
+        function updateStatus(text) {
+            document.getElementById('statusText').textContent = text;
         }
 
-        function closeModal() {
-            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
-        }
-
-        // Receiver setup
+        // Init receiver
         document.getElementById('startReceiver').addEventListener('click', () => {
             document.getElementById('startReceiver').style.display = 'none';
             document.getElementById('receiver').style.display = 'block';
+            updateStatus('Receiver mode active');
         });
 
-        // Sender setup
+        // Init sender
         document.getElementById('startSender').addEventListener('click', async () => {
             try {
                 document.getElementById('startSender').style.display = 'none';
                 document.getElementById('sender').style.display = 'block';
+                updateStatus('Initializing phone camera...');
                 
                 const peerId = `phonecam-${Math.random().toString(36).substr(2, 8)}`;
                 peer = new Peer(peerId, { host: '0.peerjs.com', port: 443, secure: true });
                 
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 1280, height: 720 } 
+                });
+                
                 document.getElementById('localVideo').srcObject = localStream;
+                updateStatus('Camera active');
 
                 // Generate connection URL
                 const url = `${window.location.href}?peer=${peerId}`;
                 document.getElementById('connectionUrl').textContent = url;
-                new QRCode(document.getElementById('qrCode'), { text: url, width: 200, height: 200 });
+                new QRCode(document.getElementById('qrCode'), { 
+                    text: url, 
+                    width: 200, 
+                    height: 200,
+                    colorDark: "#007AFF",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
 
-                peer.on('call', call => call.answer(localStream));
+                peer.on('call', call => {
+                    updateStatus('Incoming connection...');
+                    call.answer(localStream);
+                    call.on('stream', () => updateStatus('Streaming active'));
+                });
+
             } catch (error) {
+                updateStatus('Error accessing camera');
                 console.error('Error:', error);
             }
         });
 
-        // Connection handler
-        document.getElementById('connectButton').addEventListener('click', () => {
+        // Handle connection
+        document.getElementById('connectButton').addEventListener('click', async () => {
             const peerId = document.getElementById('peerIdInput').value;
+            if (!peerId) return;
+
+            updateStatus('Connecting...');
+            
             const receiverPeer = new Peer({ host: '0.peerjs.com', port: 443, secure: true });
             
             receiverPeer.on('open', () => {
                 const call = receiverPeer.call(peerId, localStream);
                 call.on('stream', stream => {
-                    const video = document.getElementById('phoneVideo');
-                    video.srcObject = stream;
-                    alert('Now set up OBS Virtual Camera as instructed!');
+                    document.getElementById('phoneVideo').srcObject = stream;
+                    updateStatus('Connected - Use OBS Virtual Camera');
                 });
+            });
+
+            receiverPeer.on('error', error => {
+                updateStatus('Connection failed');
+                console.error('Peer error:', error);
             });
         });
     </script>
