@@ -283,41 +283,41 @@
         }
 
         .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(5px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: all var(--transition-normal);
-            z-index: 1000;
-        }
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
 
-        .modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
+.modal.active {
+    opacity: 1;
+    visibility: visible;
+}
 
-        .modal-content {
-            background: white;
-            padding: 2.5rem;
-            border-radius: var(--radius-lg);
-            max-width: 500px;
-            position: relative;
-            transform: translateY(20px) scale(0.95);
-            transition: transform var(--transition-normal);
-            box-shadow: var(--shadow-lg);
-        }
+.modal-content {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 20px;
+    max-width: 500px;
+    position: relative;
+    transform: translateY(20px) scale(0.95);
+    transition: transform 0.3s ease;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.12);
+}
 
-        .modal.active .modal-content {
-            transform: translateY(0) scale(1);
-        }
+.modal.active .modal-content {
+    transform: translateY(0) scale(1);
+}
 
         .close-modal {
             position: absolute;
@@ -694,6 +694,40 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
     <script>
+        // Debug for info buttons
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded');
+    const infoButtons = document.querySelectorAll('.info-button');
+    console.log('Info buttons found:', infoButtons.length);
+    
+    infoButtons.forEach(button => {
+        console.log('Adding click event to button');
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Info button clicked!');
+            const modalId = this.getAttribute('data-modal');
+            console.log('Modal ID:', modalId);
+            showModal(modalId);
+        });
+    });
+});
+
+function showModal(modalId) {
+    console.log('Showing modal:', modalId);
+    const modal = document.getElementById(modalId);
+    if (!modal) {
+        console.error('Modal not found:', modalId);
+        return;
+    }
+    modal.classList.add('active');
+}
+
+function hideModal() {
+    console.log('Hiding modals');
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.classList.remove('active');
+    });
+}
       // Modal functions
 function showInfo(modalId) {
     document.querySelectorAll('.modal').forEach(modal => {
@@ -734,11 +768,21 @@ function closeModal() {
             }, 2000);
         }
 
-        // Close modal when clicking outside
-window.addEventListener('click', function(event) {
-    if (event.target.classList.contains('modal')) {
-        closeModal();
-    }
+        // Close button functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const closeButtons = document.querySelectorAll('.close-modal');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            hideModal();
+        });
+    });
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+            hideModal();
+        }
+    });
 });
 
         // PeerJS functionality
