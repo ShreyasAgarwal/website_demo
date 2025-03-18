@@ -1,963 +1,951 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhoneCam Pro - Virtual Webcam</title>
-    <style>
-        :root {
-            --primary: #007AFF;
-            --primary-dark: #0062cc;
-            --primary-light: rgba(0,122,255,0.1);
-            --success: #34C759;
-            --danger: #FF3B30;
-            --warning: #FF9500;
-            --background: #ffffff;
-            --surface: #F5F5F7;
-            --border: rgba(0,0,0,0.1);
-            --text-primary: #1D1D1F;
-            --text-secondary: #86868B;
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
-            --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
-            --shadow-lg: 0 16px 48px rgba(0,0,0,0.12);
-            --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            --transition-normal: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            --transition-slow: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 20px;
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes scaleIn {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        @keyframes slideInRight {
-            from { transform: translateX(30px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes slideInLeft {
-            from { transform: translateX(-30px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        @keyframes shimmer {
-            0% { background-position: -100% 0; }
-            100% { background-position: 100% 0; }
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
-        }
-
-        @keyframes fadeInOut {
-            0% { opacity: 0; }
-            20% { opacity: 1; }
-            80% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell;
-            background: var(--background);
-            margin: 0;
-            min-height: 100vh;
-            color: var(--text-primary);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 2rem 0;
-        }
-
-        .hero {
-            text-align: center;
-            margin-bottom: 4rem;
-            animation: fadeIn var(--transition-slow) both;
-        }
-
-        .hero h1 {
-            margin-bottom: 0.5rem;
-            font-size: 3rem;
-            background: linear-gradient(90deg, var(--primary), #00C6FF);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            position: relative;
-        }
-
-        .hero h1::after {
-            content: "Beta";
-            position: absolute;
-            top: 0;
-            right: -60px;
-            font-size: 1rem;
-            background: var(--warning);
-            color: white;
-            padding: 0.2rem 0.5rem;
-            border-radius: var(--radius-sm);
-            -webkit-text-fill-color: white;
-            transform: rotate(12deg);
-        }
-
-        .hero p {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 1rem auto;
-        }
-
-        .grid {
-            display: grid;
-            gap: 2.5rem;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-        }
-
-        .card {
-            background: var(--background);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border);
-            overflow: hidden;
-            transition: transform var(--transition-normal), box-shadow var(--transition-normal);
-        }
-
-        .card:nth-child(1) {
-            animation: slideInLeft var(--transition-slow) both;
-            animation-delay: 0.1s;
-        }
-
-        .card:nth-child(2) {
-            animation: slideInRight var(--transition-slow) both;
-            animation-delay: 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .card-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--surface);
-        }
-
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .card-title::before {
-            content: "";
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--primary);
-        }
-
-        .card-content {
-            padding: 2rem;
-        }
-
-        .info-button {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: var(--primary-light);
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            font-weight: bold;
-            border: none;
-        }
-
-        .info-button:hover {
-            background: var(--primary);
-            color: white;
-            transform: scale(1.1);
-        }
-
-        .button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 1rem 1.75rem;
-            border-radius: var(--radius-md);
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .button:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
-        }
-
-        .button:active {
-            transform: translateY(0);
-            box-shadow: none;
-        }
-
-        .button::after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 5px;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.5);
-            opacity: 0;
-            border-radius: 100%;
-            transform: scale(1, 1) translate(-50%);
-            transform-origin: 50% 50%;
-        }
-
-        .button:focus:not(:active)::after {
-            animation: ripple 1s ease-out;
-        }
-
-        @keyframes ripple {
-            0% {
-                transform: scale(0, 0);
-                opacity: 0.5;
-            }
-            100% {
-                transform: scale(20, 20);
-                opacity: 0;
-            }
-        }
-
-        video {
-            border-radius: var(--radius-md);
-            background: #000;
-            width: 100%;
-            margin: 1.5rem 0;
-            box-shadow: var(--shadow-sm);
-            transition: all var(--transition-normal);
-        }
-
-        video:hover {
-            box-shadow: var(--shadow-md);
-        }
-
-        .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(5px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    z-index: 1000;
-}
-
-.modal.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-.modal-content {
-    background: white;
-    padding: 2.5rem;
-    border-radius: 20px;
-    max-width: 500px;
-    position: relative;
-    transform: translateY(20px) scale(0.95);
-    transition: transform 0.3s ease;
-    box-shadow: 0 16px 48px rgba(0,0,0,0.12);
-}
-
-.modal.active .modal-content {
-    transform: translateY(0) scale(1);
-}
-
-        .close-modal {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 50%;
-            transition: background var(--transition-fast);
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: var(--text-secondary);
-        }
-
-        .close-modal:hover {
-            background: rgba(0,0,0,0.05);
-            color: var(--text-primary);
-        }
-
-        .input-group {
-            position: relative;
-            margin-bottom: 1rem;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 1rem;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            font-size: 1rem;
-            transition: all var(--transition-fast);
-            background: var(--surface);
-        }
-
-        input[type="text"]:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
-            outline: none;
-        }
-
-        #qrCode {
-            display: flex;
-            justify-content: center;
-            margin: 1rem 0;
-            animation: scaleIn var(--transition-normal);
-        }
-
-        #connectionUrl {
-            padding: 0.75rem;
-            background: var(--surface);
-            border-radius: var(--radius-sm);
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            position: relative;
-            margin-bottom: 1rem;
-        }
-
-        .copy-button {
-            position: absolute;
-            right: 8px;
-            top: 6px;
-            background: var(--primary-light);
-            color: var(--primary);
-            border: none;
-            border-radius: var(--radius-sm);
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-        }
-
-        .copy-button:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        .status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: var(--surface);
-            border-radius: var(--radius-md);
-            margin-bottom: 1rem;
-            font-size: 0.875rem;
-        }
-
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--warning);
-        }
-
-        .status-dot.connected {
-            background: var(--success);
-        }
-
-        .status-text {
-            font-weight: 500;
-        }
-
-        .feature-list {
-            margin: 2rem 0;
-            padding: 0;
-            list-style: none;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            animation: fadeIn var(--transition-slow);
-            animation-delay: 0.4s;
-            animation-fill-mode: both;
-        }
-
-        .feature-item {
-            background: var(--surface);
-            padding: 1.5rem;
-            border-radius: var(--radius-md);
-            text-align: center;
-            transition: transform var(--transition-normal);
-        }
-
-        .feature-item:hover {
-            transform: translateY(-5px);
-        }
-
-        .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            color: var(--primary);
-        }
-
-        .feature-title {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .feature-description {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-        }
-
-        .step-list {
-            counter-reset: step-counter;
-            list-style: none;
-            padding: 0;
-        }
-
-        .step-list li {
-            position: relative;
-            padding: 1rem 1rem 1rem 3rem;
-            margin-bottom: 1rem;
-            border-radius: var(--radius-sm);
-            background: var(--surface);
-            transition: all var(--transition-fast);
-        }
-
-        .step-list li:hover {
-            background: rgba(0, 122, 255, 0.05);
-        }
-
-        .step-list li::before {
-            content: counter(step-counter);
-            counter-increment: step-counter;
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 24px;
-            height: 24px;
-            background: var(--primary);
-            color: white;
-            font-weight: bold;
-            font-size: 0.875rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-
-        .shimmer {
-            background: linear-gradient(to right, var(--surface) 0%, #e8e8e8 20%, var(--surface) 40%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--radius-md);
-            font-size: 0.875rem;
-            z-index: 2000;
-            animation: fadeInOut 2s forwards;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 3rem;
-            padding: 1rem;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            animation: fadeIn var(--transition-slow);
-            animation-delay: 0.5s;
-            animation-fill-mode: both;
-        }
-
-        @media (max-width: 900px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-            
-            .hero h1::after {
-                right: -40px;
-                font-size: 0.875rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .card-content {
-                padding: 1.5rem;
-            }
-            
-            .hero h1 {
-                font-size: 2rem;
-            }
-            
-            .hero h1::after {
-                display: none;
-            }
-            
-            .feature-list {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhoneCam Pro - Virtual Webcam</title>
+  <style>
+    :root {
+      --primary: #007AFF;
+      --primary-dark: #0062cc;
+      --primary-light: rgba(0,122,255,0.1);
+      --success: #34C759;
+      --danger: #FF3B30;
+      --warning: #FF9500;
+      --background: #ffffff;
+      --surface: #F5F5F7;
+      --border: rgba(0,0,0,0.1);
+      --text-primary: #1D1D1F;
+      --text-secondary: #86868B;
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+      --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
+      --shadow-lg: 0 16px 48px rgba(0,0,0,0.12);
+      --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-normal: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-slow: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(30px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes slideInLeft {
+      from { transform: translateX(-30px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -100% 0; }
+      100% { background-position: 100% 0; }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+      20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell;
+      background: var(--background);
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: 2rem 0;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 4rem;
+      animation: fadeIn var(--transition-slow) both;
+    }
+
+    .hero h1 {
+      margin-bottom: 0.5rem;
+      font-size: 3rem;
+      background: linear-gradient(90deg, var(--primary), #00C6FF);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      position: relative;
+    }
+
+    .hero h1::after {
+      content: "Beta";
+      position: absolute;
+      top: 0;
+      right: -60px;
+      font-size: 1rem;
+      background: var(--warning);
+      color: white;
+      padding: 0.2rem 0.5rem;
+      border-radius: var(--radius-sm);
+      -webkit-text-fill-color: white;
+      transform: rotate(12deg);
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 1rem auto;
+    }
+
+    .grid {
+      display: grid;
+      gap: 2.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    }
+
+    .card {
+      background: var(--background);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    }
+
+    .card:nth-child(1) {
+      animation: slideInLeft var(--transition-slow) both;
+      animation-delay: 0.1s;
+    }
+
+    .card:nth-child(2) {
+      animation: slideInRight var(--transition-slow) both;
+      animation-delay: 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .card-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--surface);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-title::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+
+    .card-content {
+      padding: 2rem;
+    }
+
+    .info-button {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      font-weight: bold;
+      border: none;
+    }
+
+    .info-button:hover {
+      background: var(--primary);
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 1rem 1.75rem;
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .button:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+    }
+
+    .button:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .button::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%);
+      transform-origin: 50% 50%;
+    }
+
+    .button:focus:not(:active)::after {
+      animation: ripple 1s ease-out;
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+      }
+      100% {
+        transform: scale(20, 20);
+        opacity: 0;
+      }
+    }
+
+    video {
+      border-radius: var(--radius-md);
+      background: #000;
+      width: 100%;
+      margin: 1.5rem 0;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-normal);
+    }
+
+    video:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(5px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 20px;
+      max-width: 500px;
+      position: relative;
+      transform: translateY(20px) scale(0.95);
+      transition: transform 0.3s ease;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.12);
+    }
+
+    .modal.active .modal-content {
+      transform: translateY(0) scale(1);
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: background var(--transition-fast);
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: var(--text-secondary);
+    }
+
+    .close-modal:hover {
+      background: rgba(0,0,0,0.05);
+      color: var(--text-primary);
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      transition: all var(--transition-fast);
+      background: var(--surface);
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+      outline: none;
+    }
+
+    #qrCode {
+      display: flex;
+      justify-content: center;
+      margin: 1rem 0;
+      animation: scaleIn var(--transition-normal);
+    }
+
+    #connectionUrl {
+      padding: 0.75rem;
+      background: var(--surface);
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    .copy-button {
+      position: absolute;
+      right: 8px;
+      top: 6px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .copy-button:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--warning);
+    }
+
+    .status-dot.connected {
+      background: var(--success);
+    }
+
+    .status-text {
+      font-weight: 500;
+    }
+
+    .feature-list {
+      margin: 2rem 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      animation: fadeIn var(--transition-slow);
+      animation-delay: 0.4s;
+      animation-fill-mode: both;
+    }
+
+    .feature-item {
+      background: var(--surface);
+      padding: 1.5rem;
+      border-radius: var(--radius-md);
+      text-align: center;
+      transition: transform var(--transition-normal);
+    }
+
+    .feature-item:hover {
+      transform: translateY(-5px);
+    }
+
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    .feature-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-description {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .step-list {
+      counter-reset: step-counter;
+      list-style: none;
+      padding: 0;
+    }
+
+    .step-list li {
+      position: relative;
+      padding: 1rem 1rem 1rem 3rem;
+      margin-bottom: 1rem;
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      transition: all var(--transition-fast);
+    }
+
+    .step-list li:hover {
+      background: rgba(0, 122, 255, 0.05);
+    }
+
+    .step-list li::before {
+      content: counter(step-counter);
+      counter-increment: step-counter;
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 24px;
+      background: var(--primary);
+      color: white;
+      font-weight: bold;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+
+    .shimmer {
+      background: linear-gradient(to right, var(--surface) 0%, #e8e8e8 20%, var(--surface) 40%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      z-index: 2000;
+      animation: fadeInOut 2s forwards;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding: 1rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      animation: fadeIn var(--transition-slow);
+      animation-delay: 0.5s;
+      animation-fill-mode: both;
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+      
+      .hero h1::after {
+        right: -40px;
+        font-size: 0.875rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .card-content {
+        padding: 1.5rem;
+      }
+      
+      .hero h1 {
+        font-size: 2rem;
+      }
+      
+      .hero h1::after {
+        display: none;
+      }
+      
+      .feature-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="hero">
-            <h1>PhoneCam Pro</h1>
-            <p>Transform your smartphone into a professional-grade webcam with seamless wireless connection</p>
-        </div>
-
-        <div class="feature-list">
-            <div class="feature-item">
-                <div class="feature-icon">📱</div>
-                <h3 class="feature-title">Wireless Freedom</h3>
-                <p class="feature-description">No cables or special adapters needed</p>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">🔍</div>
-                <h3 class="feature-title">HD Quality</h3>
-                <p class="feature-description">Use your phone's superior camera quality</p>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">⚡</div>
-                <div class="feature-title">Low Latency</div>
-                <p class="feature-description">Real-time streaming with minimal delay</p>
-            </div>
-        </div>
-
-        <div class="grid">
-            <!-- Computer Section -->
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Computer Viewer</h3>
-                    <button class="info-button" data-modal="computer-info">i</button>
-                </div>
-                <div class="card-content">
-                    <div id="receiver" style="display: none;">
-                        <div class="status-indicator">
-                            <div class="status-dot" id="computerStatusDot"></div>
-                            <span class="status-text" id="computerStatusText">Ready to connect</span>
-                        </div>
-                        <video id="phoneVideo" autoplay playsinline></video>
-                        <div class="input-group">
-                            <input type="text" id="peerIdInput" placeholder="Enter connection ID from your phone" 
-                                   style="width: 100%; padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius-md);">
-                        </div>
-                        <button class="button" id="connectButton" style="width: 100%;">
-                            <span id="connectButtonText">Connect</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5Z"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <button class="button" id="startReceiver" style="width: 100%;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5z"/>
-                        </svg>
-                        Start Virtual Camera
-                    </button>
-                </div>
-            </div>
-
-            <!-- Phone Section -->
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Phone Camera</h3>
-                    <button class="info-button" data-modal="phone-info">i</button>
-                </div>
-                <div class="card-content">
-                    <div id="sender" style="display: none;">
-                        <div class="status-indicator">
-                            <div class="status-dot" id="phoneStatusDot"></div>
-                            <span class="status-text" id="phoneStatusText">Camera active</span>
-                        </div>
-                        <div id="qrCode"></div>
-                        <div id="connectionUrlWrapper">
-                            <p id="connectionUrl" style="word-break: break-all;"></p>
-                            <button class="copy-button" id="copyUrlButton">Copy</button>
-                        </div>
-                        <video id="localVideo" autoplay playsinline muted></video>
-                    </div>
-                    <button class="button" id="startSender" style="width: 100%;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
-                            <path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z"/>
-                        </svg>
-                        Activate Phone Camera
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="footer">
-            <p>PhoneCam Pro &copy; 2025 • <a href="#" style="color: var(--primary);">Privacy Policy</a> • <a href="#" style="color: var(--primary);">Terms of Service</a></p>
-        </div>
+  <div class="container">
+    <div class="hero">
+      <h1>PhoneCam Pro</h1>
+      <p>Transform your smartphone into a professional-grade webcam with seamless wireless connection</p>
     </div>
 
-    <!-- Modals -->
-    <div class="modal" id="computer-info">
-        <div class="modal-content">
-            <button class="close-modal">×</button>
-            <h2>Computer Setup Guide</h2>
-            <ol class="step-list">
-                <li>Click "Start Virtual Camera" to initialize the receiver</li>
-                <li>Enter the connection ID from your phone (shown after activating)</li>
-                <li>Install OBS Studio for virtual camera support</li>
-                <li>Select OBS Virtual Camera in your video conferencing app</li>
-                <li>Adjust settings as needed for optimal quality</li>
-            </ol>
-        </div>
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="feature-icon">📱</div>
+        <h3 class="feature-title">Wireless Freedom</h3>
+        <p class="feature-description">No cables or special adapters needed</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🔍</div>
+        <h3 class="feature-title">HD Quality</h3>
+        <p class="feature-description">Use your phone's superior camera quality</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Low Latency</div>
+        <p class="feature-description">Real-time streaming with minimal delay</p>
+      </div>
     </div>
 
-    <div class="modal" id="phone-info">
-        <div class="modal-content">
-            <button class="close-modal">×</button>
-            <h2>Phone Setup Guide</h2>
-            <ol class="step-list">
-                <li>Click "Activate Phone Camera" and allow camera access</li>
-                <li>Share the connection ID with your computer</li>
-                <li>Use the QR code for quick setup or copy the URL</li>
-                <li>Keep this page open during your video session</li>
-                <li>For best results, use a phone stand or tripod</li>
-            </ol>
+    <div class="grid">
+      <!-- Computer Section -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Computer Viewer</h3>
+          <button class="info-button" data-modal="computer-info">i</button>
         </div>
+        <div class="card-content">
+          <div id="receiver" style="display: none;">
+            <div class="status-indicator">
+              <div class="status-dot" id="computerStatusDot"></div>
+              <span class="status-text" id="computerStatusText">Ready to connect</span>
+            </div>
+            <video id="phoneVideo" autoplay playsinline></video>
+            <div class="input-group">
+              <input type="text" id="peerIdInput" placeholder="Enter connection ID from your phone" 
+                     style="width: 100%; padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius-md);">
+            </div>
+            <button class="button" id="connectButton" style="width: 100%;">
+              <span id="connectButtonText">Connect</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5Z"/>
+              </svg>
+            </button>
+          </div>
+          <button class="button" id="startReceiver" style="width: 100%;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5z"/>
+            </svg>
+            Start Virtual Camera
+          </button>
+        </div>
+      </div>
+
+      <!-- Phone Section -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Phone Camera</h3>
+          <button class="info-button" data-modal="phone-info">i</button>
+        </div>
+        <div class="card-content">
+          <div id="sender" style="display: none;">
+            <div class="status-indicator">
+              <div class="status-dot" id="phoneStatusDot"></div>
+              <span class="status-text" id="phoneStatusText">Camera active</span>
+            </div>
+            <div id="qrCode"></div>
+            <div id="connectionUrlWrapper">
+              <p id="connectionUrl" style="word-break: break-all;"></p>
+              <button class="copy-button" id="copyUrlButton">Copy</button>
+            </div>
+            <video id="localVideo" autoplay playsinline muted></video>
+          </div>
+          <button class="button" id="startSender" style="width: 100%;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+              <path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z"/>
+            </svg>
+            Activate Phone Camera
+          </button>
+        </div>
+      </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.3.1/dist/peerjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-
-    <script>
-        // Debug for info buttons
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded');
-    const infoButtons = document.querySelectorAll('.info-button');
-    console.log('Info buttons found:', infoButtons.length);
     
-    infoButtons.forEach(button => {
+    <div class="footer">
+      <p>PhoneCam Pro &copy; 2025 • <a href="#" style="color: var(--primary);">Privacy Policy</a> • <a href="#" style="color: var(--primary);">Terms of Service</a></p>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <div class="modal" id="computer-info">
+    <div class="modal-content">
+      <button class="close-modal">×</button>
+      <h2>Computer Setup Guide</h2>
+      <ol class="step-list">
+        <li>Click "Start Virtual Camera" to initialize the receiver</li>
+        <li>Enter the connection ID from your phone (shown after activating)</li>
+        <li>Install OBS Studio for virtual camera support</li>
+        <li>Select OBS Virtual Camera in your video conferencing app</li>
+        <li>Adjust settings as needed for optimal quality</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="modal" id="phone-info">
+    <div class="modal-content">
+      <button class="close-modal">×</button>
+      <h2>Phone Setup Guide</h2>
+      <ol class="step-list">
+        <li>Click "Activate Phone Camera" and allow camera access</li>
+        <li>Share the connection ID with your computer</li>
+        <li>Use the QR code for quick setup or copy the URL</li>
+        <li>Keep this page open during your video session</li>
+        <li>For best results, use a phone stand or tripod</li>
+      </ol>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/peerjs@1.3.1/dist/peerjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+  <script>
+    // Debug for info buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded');
+      const infoButtons = document.querySelectorAll('.info-button');
+      console.log('Info buttons found:', infoButtons.length);
+      
+      infoButtons.forEach(button => {
         console.log('Adding click event to button');
         button.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Info button clicked!');
-            const modalId = this.getAttribute('data-modal');
-            console.log('Modal ID:', modalId);
-            showModal(modalId);
+          e.preventDefault();
+          console.log('Info button clicked!');
+          const modalId = this.getAttribute('data-modal');
+          console.log('Modal ID:', modalId);
+          showModal(modalId);
         });
+      });
     });
-});
 
-function showModal(modalId) {
-    console.log('Showing modal:', modalId);
-    const modal = document.getElementById(modalId);
-    if (!modal) {
+    function showModal(modalId) {
+      console.log('Showing modal:', modalId);
+      const modal = document.getElementById(modalId);
+      if (!modal) {
         console.error('Modal not found:', modalId);
         return;
+      }
+      modal.classList.add('active');
     }
-    modal.classList.add('active');
-}
 
-function hideModal() {
-    console.log('Hiding modals');
-    document.querySelectorAll('.modal').forEach(modal => {
+    function hideModal() {
+      console.log('Hiding modals');
+      document.querySelectorAll('.modal').forEach(modal => {
         modal.classList.remove('active');
-    });
-}
-      // Modal functions
-function showInfo(modalId) {
-    document.querySelectorAll('.modal').forEach(modal => {
-        modal.classList.remove('active');
-    });
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.add('active');
-    } else {
-        console.error(`Modal with ID "${modalId}" not found`);
+      });
     }
-}
 
-function closeModal() {
-    document.querySelectorAll('.modal').forEach(modal => {
-        modal.classList.remove('active');
-    });
-}
-        // Toast notification
-        function showToast(message) {
-            // Remove any existing toasts
-            const existingToasts = document.querySelectorAll('.toast');
-            existingToasts.forEach(toast => {
-                document.body.removeChild(toast);
-            });
-            
-            // Create and add new toast
-            const toast = document.createElement('div');
-            toast.classList.add('toast');
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            
-            // Remove toast after animation completes
-            setTimeout(() => {
-                if (document.body.contains(toast)) {
-                    document.body.removeChild(toast);
-                }
-            }, 2000);
+    // Toast notification
+    function showToast(message) {
+      // Remove any existing toasts
+      const existingToasts = document.querySelectorAll('.toast');
+      existingToasts.forEach(toast => {
+        document.body.removeChild(toast);
+      });
+      
+      // Create and add new toast
+      const toast = document.createElement('div');
+      toast.classList.add('toast');
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      // Remove toast after animation completes
+      setTimeout(() => {
+        if (document.body.contains(toast)) {
+          document.body.removeChild(toast);
         }
+      }, 2000);
+    }
 
-        // Close button functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const closeButtons = document.querySelectorAll('.close-modal');
-    closeButtons.forEach(button => {
+    // Close button functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const closeButtons = document.querySelectorAll('.close-modal');
+      closeButtons.forEach(button => {
         button.addEventListener('click', function() {
-            hideModal();
+          hideModal();
         });
-    });
-    
-    // Close modal when clicking outside
-    window.addEventListener('click', function(event) {
+      });
+      
+      // Close modal when clicking outside
+      window.addEventListener('click', function(event) {
         if (event.target.classList.contains('modal')) {
-            hideModal();
+          hideModal();
         }
+      });
     });
-});
 
-        // PeerJS functionality
-        let peer = null;
-        let localStream = null;
-        let connection = null;
+    // PeerJS functionality
+    let peer = null;
+    let localStream = null;
+    let connection = null;
 
-        // Start animations on load
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.feature-item').forEach((item, index) => {
-                item.style.animationDelay = `${0.2 + (index * 0.1)}s`;
+    // Start animations on load
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.feature-item').forEach((item, index) => {
+        item.style.animationDelay = `${0.2 + (index * 0.1)}s`;
+      });
+      
+      // Check for URL parameters to auto-connect
+      const urlParams = new URLSearchParams(window.location.search);
+      const peerParam = urlParams.get('peer');
+      
+      if (peerParam) {
+        // Auto-start receiver mode if peer parameter is present
+        document.getElementById('startReceiver').click();
+        setTimeout(() => {
+          document.getElementById('peerIdInput').value = peerParam;
+          document.getElementById('connectButton').click();
+        }, 1000);
+      }
+    });
+
+    document.getElementById('startReceiver').addEventListener('click', () => {
+      const button = document.getElementById('startReceiver');
+      button.innerHTML = '<span class="shimmer" style="width: 24px; height: 24px; display: inline-block; border-radius: 50%;"></span> Starting...';
+      
+      setTimeout(() => {
+        button.style.display = 'none';
+        document.getElementById('receiver').style.display = 'block';
+        document.getElementById('receiver').style.animation = 'fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+      }, 800);
+    });
+
+    document.getElementById('startSender').addEventListener('click', async () => {
+      try {
+        const button = document.getElementById('startSender');
+        button.innerHTML = '<span class="shimmer" style="width: 24px; height: 24px; display: inline-block; border-radius: 50%;"></span> Activating...';
+        
+        setTimeout(async () => {
+          button.style.display = 'none';
+          document.getElementById('sender').style.display = 'block';
+          document.getElementById('sender').style.animation = 'fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+          
+          // Use substring() instead of substr() for generating peer ID
+          const peerId = `phonecam-${Math.random().toString(36).substring(2, 10)}`;
+          peer = new Peer(peerId, { host: '0.peerjs.com', port: 443, secure: true });
+          
+          try {
+            localStream = await navigator.mediaDevices.getUserMedia({ 
+              video: { 
+                facingMode: "environment",
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
+              },
+              audio: false
             });
             
-            // Check for URL parameters to auto-connect
-            const urlParams = new URLSearchParams(window.location.search);
-            const peerParam = urlParams.get('peer');
+            document.getElementById('localVideo').srcObject = localStream;
+
+            const url = `${window.location.href.split('?')[0]}?peer=${peerId}`;
+            document.getElementById('connectionUrl').textContent = url;
             
-            if (peerParam) {
-                // Auto-start receiver mode if peer parameter is present
-                document.getElementById('startReceiver').click();
-                setTimeout(() => {
-                    document.getElementById('peerIdInput').value = peerParam;
-                    document.getElementById('connectButton').click();
-                }, 1000);
-            }
-        });
+            document.getElementById('qrCode').innerHTML = '';
+            new QRCode(document.getElementById('qrCode'), { 
+              text: url, 
+              width: 200, 
+              height: 200,
+              colorDark: "#007AFF",
+              colorLight: "#ffffff",
+              correctLevel: QRCode.CorrectLevel.H
+            });
 
-        document.getElementById('startReceiver').addEventListener('click', () => {
-            const button = document.getElementById('startReceiver');
-            button.innerHTML = '<span class="shimmer" style="width: 24px; height: 24px; display: inline-block; border-radius: 50%;"></span> Starting...';
+            peer.on('call', call => {
+              call.answer(localStream);
+              document.getElementById('phoneStatusDot').classList.add('connected');
+              document.getElementById('phoneStatusText').textContent = 'Connected to computer';
+              showToast('Computer connected successfully');
+            });
+
+            peer.on('error', error => {
+              console.error('PeerJS error:', error);
+              document.getElementById('phoneStatusDot').classList.remove('connected');
+              document.getElementById('phoneStatusText').textContent = 'Connection error';
+              showToast('Connection error: ' + error.message);
+            });
             
-            setTimeout(() => {
-                button.style.display = 'none';
-                document.getElementById('receiver').style.display = 'block';
-                document.getElementById('receiver').style.animation = 'fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-            }, 800);
-        });
-
-        document.getElementById('startSender').addEventListener('click', async () => {
-            try {
-                const button = document.getElementById('startSender');
-                button.innerHTML = '<span class="shimmer" style="width: 24px; height: 24px; display: inline-block; border-radius: 50%;"></span> Activating...';
-                
-                setTimeout(async () => {
-                    button.style.display = 'none';
-                    document.getElementById('sender').style.display = 'block';
-                    document.getElementById('sender').style.animation = 'fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-                    
-                    const peerId = `phonecam-${Math.random().toString(36).substr(2, 8)}`;
-                    peer = new Peer(peerId, { host: '0.peerjs.com', port: 443, secure: true });
-                    
-                    try {
-                        localStream = await navigator.mediaDevices.getUserMedia({ 
-                            video: { 
-                                facingMode: "environment",
-                                width: { ideal: 1920 },
-                                height: { ideal: 1080 }
-                            },
-                            audio: false
-                        });
-                        
-                        document.getElementById('localVideo').srcObject = localStream;
-
-                        const url = `${window.location.href.split('?')[0]}?peer=${peerId}`;
-                        document.getElementById('connectionUrl').textContent = url;
-                        
-                        document.getElementById('qrCode').innerHTML = '';
-                        new QRCode(document.getElementById('qrCode'), { 
-                            text: url, 
-                            width: 200, 
-                            height: 200,
-                            colorDark: "#007AFF",
-                            colorLight: "#ffffff",
-                            correctLevel: QRCode.CorrectLevel.H
-                        });
-
-                        peer.on('call', call => {
-                            call.answer(localStream);
-                            document.getElementById('phoneStatusDot').classList.add('connected');
-                            document.getElementById('phoneStatusText').textContent = 'Connected to computer';
-                            showToast('Computer connected successfully');
-                        });
-peer.on('error', error => {
-            console.error('PeerJS error:', error);
-            document.getElementById('phoneStatusDot').classList.remove('connected');
-            document.getElementById('phoneStatusText').textContent = 'Connection error';
-            showToast('Connection error: ' + error.message);
-        });
-        
-        peer.on('disconnected', () => {
-            document.getElementById('phoneStatusDot').classList.remove('connected');
-            document.getElementById('phoneStatusText').textContent = 'Disconnected';
-            showToast('Disconnected from peer server');
-        });
-        
-        peer.on('close', () => {
-            document.getElementById('phoneStatusDot').classList.remove('connected');
-            document.getElementById('phoneStatusText').textContent = 'Connection closed';
-        });
-        
-        document.getElementById('copyUrlButton').addEventListener('click', () => {
-            const urlText = document.getElementById('connectionUrl').textContent;
-            navigator.clipboard.writeText(urlText)
+            peer.on('disconnected', () => {
+              document.getElementById('phoneStatusDot').classList.remove('connected');
+              document.getElementById('phoneStatusText').textContent = 'Disconnected';
+              showToast('Disconnected from peer server');
+            });
+            
+            peer.on('close', () => {
+              document.getElementById('phoneStatusDot').classList.remove('connected');
+              document.getElementById('phoneStatusText').textContent = 'Connection closed';
+            });
+            
+            document.getElementById('copyUrlButton').addEventListener('click', () => {
+              const urlText = document.getElementById('connectionUrl').textContent;
+              navigator.clipboard.writeText(urlText)
                 .then(() => {
-                    showToast('URL copied to clipboard');
+                  showToast('URL copied to clipboard');
                 })
                 .catch(err => {
-                    console.error('Failed to copy: ', err);
-                    showToast('Failed to copy URL');
+                  console.error('Failed to copy: ', err);
+                  showToast('Failed to copy URL');
                 });
-        });
-        
-    } catch (error) {
-        console.error('Error starting sender:', error);
-        showToast('Camera access error: ' + error.message);
-        document.getElementById('startSender').style.display = 'block';
-        document.getElementById('startSender').textContent = 'Retry Camera Access';
-        document.getElementById('sender').style.display = 'none';
-    }
-}, 800);
-});
+            });
+            
+          } catch (error) {
+            console.error('Error starting sender:', error);
+            showToast('Camera access error: ' + error.message);
+            document.getElementById('startSender').style.display = 'block';
+            document.getElementById('startSender').textContent = 'Retry Camera Access';
+            document.getElementById('sender').style.display = 'none';
+          }
+        }, 800);
+      } catch (error) {
+        console.error('Error in startSender handler:', error);
+      }
+    });
 
-document.getElementById('connectButton').addEventListener('click', () => {
-    const peerId = document.getElementById('peerIdInput').value.trim();
-    if (!peerId) {
+    document.getElementById('connectButton').addEventListener('click', () => {
+      const peerId = document.getElementById('peerIdInput').value.trim();
+      if (!peerId) {
         showToast('Please enter a connection ID');
         document.getElementById('peerIdInput').style.animation = 'shake 0.5s';
         setTimeout(() => {
-            document.getElementById('peerIdInput').style.animation = '';
+          document.getElementById('peerIdInput').style.animation = '';
         }, 500);
         return;
-    }
-    
-    if (!peer) {
+      }
+      
+      if (!peer) {
         peer = new Peer(undefined, { host: '0.peerjs.com', port: 443, secure: true });
-    }
-    
-    document.getElementById('connectButtonText').textContent = 'Connecting...';
-    document.getElementById('computerStatusText').textContent = 'Connecting to phone...';
-    
-    peer.on('open', id => {
+      }
+      
+      document.getElementById('connectButtonText').textContent = 'Connecting...';
+      document.getElementById('computerStatusText').textContent = 'Connecting to phone...';
+      
+      peer.on('open', id => {
         const call = peer.call(peerId, new MediaStream());
         
         call.on('stream', remoteStream => {
-            document.getElementById('phoneVideo').srcObject = remoteStream;
-            document.getElementById('computerStatusDot').classList.add('connected');
-            document.getElementById('computerStatusText').textContent = 'Connected to phone';
-            document.getElementById('connectButtonText').textContent = 'Connected';
-            showToast('Connected to phone camera');
+          document.getElementById('phoneVideo').srcObject = remoteStream;
+          document.getElementById('computerStatusDot').classList.add('connected');
+          document.getElementById('computerStatusText').textContent = 'Connected to phone';
+          document.getElementById('connectButtonText').textContent = 'Connected';
+          showToast('Connected to phone camera');
         });
         
         call.on('close', () => {
-            document.getElementById('computerStatusDot').classList.remove('connected');
-            document.getElementById('computerStatusText').textContent = 'Disconnected';
-            document.getElementById('connectButtonText').textContent = 'Reconnect';
-            showToast('Connection closed');
+          document.getElementById('computerStatusDot').classList.remove('connected');
+          document.getElementById('computerStatusText').textContent = 'Disconnected';
+          document.getElementById('connectButtonText').textContent = 'Reconnect';
+          showToast('Connection closed');
         });
         
         call.on('error', error => {
-            console.error('Call error:', error);
-            document.getElementById('computerStatusDot').classList.remove('connected');
-            document.getElementById('computerStatusText').textContent = 'Connection error';
-            document.getElementById('connectButtonText').textContent = 'Retry';
-            showToast('Connection error: ' + error.message);
+          console.error('Call error:', error);
+          document.getElementById('computerStatusDot').classList.remove('connected');
+          document.getElementById('computerStatusText').textContent = 'Connection error';
+          document.getElementById('connectButtonText').textContent = 'Retry';
+          showToast('Connection error: ' + error.message);
         });
-    });
-    
-    peer.on('error', error => {
+      });
+      
+      peer.on('error', error => {
         console.error('PeerJS error:', error);
         document.getElementById('computerStatusDot').classList.remove('connected');
         document.getElementById('computerStatusText').textContent = 'Connection error';
         document.getElementById('connectButtonText').textContent = 'Retry';
         showToast('Connection error: ' + error.message);
+      });
     });
-});
-</script>
+  </script>
 </body>
 </html>
